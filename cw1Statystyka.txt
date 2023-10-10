@@ -1,0 +1,85 @@
+CREATE TABLE jobs_1(job_id INT,
+    job_title varchar2(50),
+    min_salary DECIMAL(10,2),
+    max_salary DECIMAL(10,2));
+
+ALTER TABLE jobs_1
+    ADD PRIMARY KEY(job_id);
+    
+
+
+CREATE TABLE regions(region_id INT,
+    region_name varchar2(50));
+    
+ALTER TABLE regions
+    ADD PRIMARY KEY(region_id);
+    
+CREATE TABLE countries(country_id INT,
+    country_name varchar2(50),
+    region_id INT);
+
+ALTER TABLE countries
+    ADD PRIMARY KEY (country_id); 
+
+ALTER TABLE countries
+    ADD FOREIGN KEY (region_id) REFERENCES regions(region_id); 
+
+CREATE TABLE locations(location_id INT NOT NULL PRIMARY KEY,
+    street_address varchar2(50),
+    postal_code varchar2(20),
+    city varchar2(50),
+    state_province varchar2(50),
+    country_id INT,
+    FOREIGN KEY (country_id) REFERENCES countries(country_id));
+
+
+CREATE TABLE departments(department_id INT NOT NULL PRIMARY KEY,
+    department_name varchar2(50),
+    manager_id INT,
+    location_id INT,
+    FOREIGN KEY (location_id) REFERENCES locations(location_id));
+
+CREATE TABLE employees(employee_id INT NOT NULL PRIMARY KEY,
+    first_name varchar2(50),
+    last_name varchar2(50),
+    email varchar2(50),
+    hire_date DATE,
+    job_id INT,
+    salary DECIMAL(10,2),
+    commission_pct varchar2(50),
+    manager_id INT,
+    department_id INT,
+    FOREIGN KEY (job_id) REFERENCES jobs_1(job_id));
+
+CREATE TABLE job_history(employee_id INT,
+    start_date DATE,
+    end_date DATE,
+    job_id INT,
+    department_id INT,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id),
+    FOREIGN KEY (job_id) REFERENCES jobs_1(job_id));
+
+ALTER TABLE job_history
+    ADD CONSTRAINT pk_job_history PRIMARY KEY (employee_id,start_date); 
+
+ALTER TABLE job_history
+    ADD FOREIGN KEY (employee_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE employees
+    ADD FOREIGN KEY (department_id) REFERENCES departments(department_id); 
+
+ALTER TABLE employees
+    ADD FOREIGN KEY (manager_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE jobs_1
+    ADD CONSTRAINT chk_salary CHECK (min_salary + 2000 < max_salary);
+
+DROP TABLE job_history
+
+FLASHBACK TABLE job_history TO BEFORE DROP; 
+
+ALTER TABLE job_history
+    ADD FOREIGN KEY (employee_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE job_history
+    ADD 
