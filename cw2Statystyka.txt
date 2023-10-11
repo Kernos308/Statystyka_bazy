@@ -76,10 +76,17 @@ SELECT CONCAT(last_name, salary) AS payment
     ORDER BY last_name;
 
 
-SELECT employee.hire_date, employee.last_name, employee.employee_id
+SELECT employee.hire_date, employee.last_name, &user_column
     FROM employees employee, employees manager
     WHERE employee.manager_id = manager.employee_id
-    AND EXTRACT (YEAR FROM manager.hire_date) = 2005;
+    AND EXTRACT (YEAR FROM manager.hire_date) = 2005
+    ORDER BY &user_column;
+AND e2.first_name LIKE '%&asd%'
+
+SELECT first_name || ' ' || last_name AS employee, salary, phone_number
+    FROM employees
+    WHERE last_name LIKE '__e%' AND.first_name LIKE '%&asd%'
+    ORDER BY employee DESC, salary ASC;
 
 
 
