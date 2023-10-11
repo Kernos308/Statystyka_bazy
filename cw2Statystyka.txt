@@ -1,0 +1,87 @@
+DROP TABLE regions CASCADE CONSTRAINTS
+DROP TABLE countries CASCADE CONSTRAINTS
+DROP TABLE departments CASCADE CONSTRAINTS
+DROP TABLE employees CASCADE CONSTRAINTS
+DROP TABLE job_history CASCADE CONSTRAINTS
+DROP TABLE jobs_1 CASCADE CONSTRAINTS
+DROP TABLE locations CASCADE CONSTRAINTS
+
+CREATE TABLE countries AS SELECT * FROM HR.countries
+CREATE TABLE departments AS SELECT * FROM HR.departments
+CREATE TABLE employees AS SELECT * FROM HR.employees
+CREATE TABLE job_grades AS SELECT * FROM HR.job_grades
+CREATE TABLE jobs AS SELECT * FROM HR.jobs
+CREATE TABLE locations AS SELECT * FROM HR.locations
+CREATE TABLE regions AS SELECT * FROM HR.regions
+CREATE TABLE job_history AS SELECT * FROM HR.job_history
+
+ALTER TABLE COUNTRIES
+    ADD PRIMARY KEY(country_id);
+
+ALTER TABLE departments
+    ADD PRIMARY KEY(department_id);
+    
+ALTER TABLE employees
+    ADD PRIMARY KEY(employee_id);
+    
+ALTER TABLE job_grades
+    ADD PRIMARY KEY(grade);
+    
+ALTER TABLE job_history
+    ADD CONSTRAINT pk_job_history PRIMARY KEY (employee_id,start_date);  
+
+ALTER TABLE jobs
+    ADD PRIMARY KEY(job_id);
+    
+ALTER TABLE locations
+    ADD PRIMARY KEY(location_id);
+    
+ALTER TABLE regions
+    ADD PRIMARY KEY(region_id);
+
+ALTER TABLE countries
+    ADD FOREIGN KEY (region_id) REFERENCES regions(region_id); 
+
+ALTER TABLE job_history
+    ADD FOREIGN KEY (employee_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE employees
+    ADD FOREIGN KEY (department_id) REFERENCES departments(department_id); 
+
+ALTER TABLE employees
+    ADD FOREIGN KEY (manager_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE departments
+    ADD FOREIGN KEY (manager_id) REFERENCES employees(employee_id); 
+
+ALTER TABLE departments
+    ADD FOREIGN KEY (location_id) REFERENCES locations(location_id); 
+
+ALTER TABLE employees
+    ADD FOREIGN KEY (job_id) REFERENCES jobs(job_id); 
+
+ALTER TABLE job_history
+    ADD FOREIGN KEY (job_id) REFERENCES jobs(job_id);
+
+ALTER TABLE job_history
+    ADD FOREIGN KEY (department_id) REFERENCES departments(department_id);
+
+ALTER TABLE locations
+    ADD FOREIGN KEY (country_id) REFERENCES countries(country_id);
+
+SELECT CONCAT(last_name, salary) AS payment
+    FROM employees
+    WHERE department_id = 20 OR department_id = 50
+    AND salary BETWEEN 2000 AND 7000
+    ORDER BY last_name;
+
+
+SELECT employee.hire_date, employee.last_name, employee.employee_id
+    FROM employees employee, employees manager
+    WHERE employee.manager_id = manager.employee_id
+    AND EXTRACT (YEAR FROM manager.hire_date) = 2005;
+
+
+
+
+
