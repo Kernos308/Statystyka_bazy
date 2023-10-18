@@ -85,9 +85,56 @@ AND e2.first_name LIKE '%&asd%'
 
 SELECT first_name || ' ' || last_name AS employee, salary, phone_number
     FROM employees
-    WHERE last_name LIKE '__e%' AND.first_name LIKE '%&asd%'
+    WHERE last_name LIKE '__e%' AND first_name LIKE '%&asd%'
     ORDER BY employee DESC, salary ASC;
 
+SELECT first_name, last_name, ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) as months,
+    CASE
+        WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) < 150 THEN salary*0.1
+        WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date)) BETWEEN 150 AND 200 THEN salary*0.2
+        WHEN ROUND(MONTHS_BETWEEN(CURRENT_DATE, hire_date))>200 THEN salary*0.3
+    END AS allowance_amount
+    FROM employees
+    ORDER BY months
+
+SELECT 
+    SUM(e.salary) as salary_summ, ROUND(AVG(e.salary)) as salary_avg
+    FROM employees e, departments d
+    WHERE d.department_id = e.department_id AND e.salary>5000
+
+SELECT e.last_name, e.department_id, d.department_name, e.job_id
+    FROM employees e
+    INNER JOIN departments d ON e.department_id = d.department_id
+    INNER JOIN locations l ON d.location_id = l.location_id
+    INNER JOIN jobs j ON e.job_id = j.job_id
+    WHERE l.city LIKE 'Toronto'
+
+SELECT e2.first_name, e2.last_name
+    FROM employees e1, employees e2
+    WHERE e1.first_name LIKE 'Jennifer' AND e1.department_id = e2.department_id
+    AND e1.employee_id <> e2.employee_id
+
+
+SELECT d.department_name
+    FROM departments d
+    LEFT OUTER JOIN employees e ON e.department_id = d.department_id
+    GROUP BY d.department_name
+    HAVING count(e.department_id) = 0
+
+SELECT e.first_name, e.last_name, e.job_id, d.department_name, e.salary, g.grade
+    FROM employees e, job_grades g, departments d
+    WHERE e.department_id = d.department_id
+    AND e.salary BETWEEN g.min_salary AND g.max_salary
+
+
+SELECT first_name, last_name, salary
+    FROM employees
+    WHERE salary>(SELECT AVG(salary) from employees);
+
+SELECT e2.employee_id, e2.first_name, e2.last_name
+    FROM employees e1, employees e2
+    WHERE e1.last_name LIKE '%u%' AND e1.department_id = e2.department_id
+    GROUP BY e2.employee_id, e2.first_name, e2.last_name
 
 
 
