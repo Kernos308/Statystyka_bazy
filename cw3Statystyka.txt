@@ -1,0 +1,48 @@
+DECLARE 
+    numer_max INT;
+    new_department_name VARCHAR2(30) := 'EDUCATION';
+BEGIN
+    SELECT MAX(department_id) +10
+    INTO numer_max
+    FROM departments;
+    INSERT INTO departments(department_id, department_name)
+    VALUES(numer_max, new_department_name);
+  END;
+
+DECLARE 
+    numer_max INT;
+    new_department_name VARCHAR2(30) := 'EDUCATION';
+BEGIN
+    SELECT MAX(department_id) +10
+    INTO numer_max
+    FROM departments;
+    INSERT INTO departments(department_id, department_name, location_id)
+    VALUES(numer_max, new_department_name, 3000);
+END;
+
+
+
+BEGIN
+    FOR v_loop IN 1..10 LOOP
+        IF (v_loop = 4 OR v_loop = 6) THEN 
+            CONTINUE;
+        ELSE
+            INSERT INTO nowa (nowa_id)
+            VALUES (v_loop);
+        END IF;
+    END LOOP;
+END;
+
+
+DECLARE
+    countries_rec countries%ROWTYPE;
+BEGIN
+    SELECT * INTO countries_rec
+    FROM countries
+    WHERE country_id = 'CA';
+    
+    DBMS_OUTPUT.put_line(countries_rec.country_name || ' ' || countries_rec.region_id);
+END;
+
+CREATE INDEX idx_dept_name
+    ON departments (department_name);
