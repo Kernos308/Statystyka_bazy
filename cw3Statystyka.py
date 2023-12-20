@@ -1,7 +1,7 @@
 from numpy import random
 import pandas as pd
 from scipy import stats
-from scipy.stats import shapiro
+
 
 # zad1
 
@@ -48,17 +48,17 @@ for rok, value in df_grouped['regionalne']:
 
 print(sum(mean_for_year)/len(mean_for_year))
 
-#zad3
+# zad3
 
 for column in df.columns:
     data = df[column]
-    stat_shapiro, p_shapiro = shapiro(data)
+    stat_shapiro, p_shapiro = stats.shapiro(data)
     if p_shapiro < alfa:
-        print(f'Kolumna {column} nie wykazuje normalnosci')
+        print(f'Kolumna {column} nie wykazuje normalnosci\n')
     else:
-        print(f'Kolumna {column} wykazuje normalnosc')
+        print(f'Kolumna {column} wykazuje normalnosc\n')
 
-
+# zad4
 drinks = [('okocim', 'lech'), ('fanta', 'regionalne'), ('cola', 'pepsi')]
 
 
@@ -74,6 +74,45 @@ for drink in drinks:
     print(f'Wartość p: {p_value}')
 
     if p_value < alfa:
-        print('Srednie nie sa rowne')
+        print('Srednie nie sa rowne\n')
     else:
-        print('Rownosc srednich')
+        print('Rownosc srednich\n')
+
+
+# zad5
+drinks = [('okocim', 'lech'), ('żywiec', 'fanta'), ('regionalne', 'cola')]
+
+
+for drink in drinks:
+    drink1, drink2 = drink
+    data1 = df[drink1]
+    data2 = df[drink2]
+
+    stat_test, p_value = stats.levene(data1, data2)
+
+    print(f'Test Levene\'a dla par {drink1} - {drink2}:')
+    print(f'Statystyka testowa: {stat_test}')
+    print(f'Wartość p: {p_value}')
+
+    if p_value < alfa:
+        print('Wariancje nie sa rowne\n')
+    else:
+        print('Rownosc wariancji\n')
+
+
+# zad6
+
+data_2001 = df[df['rok'] == 2001]['regionalne']
+data_2015 = df[df['rok'] == 2015]['regionalne']
+
+
+stat_test, p_value = stats.ttest_rel(data_2001, data_2015)
+
+print(f'Test t-Studenta dla lat 2001 - 2015:')
+print(f'Statystyka testowa: {stat_test}')
+print(f'Wartość p: {p_value}')
+
+if p_value < alfa:
+    print('Srednie nie sa rowne\n')
+else:
+    print('Rownosc srednich\n')
