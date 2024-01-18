@@ -51,12 +51,38 @@ END;
 
 ---ZAD5---
 
-CREATE INDEX idx_dept_name
-    ON departments (department_name);
+DECLARE
+    TYPE DepartmentIndex IS TABLE OF departments.department_name%TYPE INDEX BY BINARY_INTEGER;
+    v_departments DepartmentIndex;
+BEGIN
+    FOR i IN 1..10 LOOP
+        v_departments(i * 10) := NULL;
+        SELECT department_name INTO v_departments(i * 10)
+        FROM departments
+        WHERE department_id = i * 10;
+    END LOOP;
+    FOR i IN 1..10 LOOP
+        DBMS_OUTPUT.PUT_LINE('Nr: ' || i * 10 || ', Name: ' || v_departments(i * 10));
+    END LOOP;
+END;
 
 ---ZAD6---
 
-TODO: zad 5, 6
+DECLARE
+  v_department departments%ROWTYPE;
+BEGIN
+  FOR i IN 1..10 LOOP
+    SELECT * INTO v_department
+    FROM departments
+    WHERE department_id = i * 10;
+    DBMS_OUTPUT.NEW_LINE;
+    DBMS_OUTPUT.PUT_LINE('Department ID ' || v_department.department_id);
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_department.department_name);
+    DBMS_OUTPUT.PUT_LINE('Manager ID: ' || v_department.manager_id);
+    DBMS_OUTPUT.PUT_LINE('Location ID: ' || v_department.location_id);
+    DBMS_OUTPUT.NEW_LINE;
+  END LOOP;
+END;
 
 ---ZAD7---
 
@@ -100,7 +126,7 @@ END;
 
 ---ZAD9---
 
-
+--A--
 
 
 
