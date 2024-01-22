@@ -1,0 +1,55 @@
+--FUNKCJE--
+--ZAD1--
+CREATE FUNCTION get_job(v_job_id VARCHAR2) RETURN VARCHAR2
+IS
+    v_job_title VARCHAR2(50);
+BEGIN
+    SELECT job_title
+    INTO v_job_title
+    FROM JOBS
+    WHERE job_id = v_job_id;
+
+    RETURN v_job_title;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Could not find that job');
+END;
+/
+SELECT get_job('SA_REP') AS job_title FROM DUAL;
+SELECT get_job('test_test') AS job_title FROM DUAL;
+
+
+--ZAD2--
+CREATE FUNCTION yearly_income(v_employee_id INT) RETURN FLOAT
+IS
+    v_salary FLOAT;
+    v_bonus FLOAT;
+BEGIN
+
+    SELECT (salary * 12)
+    INTO v_salary
+    FROM employees
+    WHERE employee_id = v_employee_id;
+
+    SELECT (salary * commission_pct)
+    INTO v_bonus
+    FROM employees
+    WHERE employee_id = v_employee_id;
+
+    IF v_bonus IS NOT NULL THEN
+        RETURN (v_salary + v_bonus);
+    END IF;
+    RETURN v_salary;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+         RAISE_APPLICATION_ERROR(-20002, 'Could not find employee');
+END;
+/
+SELECT yearly_income(1) FROM DUAL;
+SELECT yearly_income(100) FROM DUAL;
+SELECT yearly_income(101) FROM DUAL;
+
+
+--ZAD3--
+
+
