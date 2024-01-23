@@ -53,3 +53,190 @@ SELECT yearly_income(101) FROM DUAL;
 --ZAD3--
 
 
+--ZAD4--
+
+CREATE OR REPLACE FUNCTION lower_to_upper(v_string VARCHAR2) RETURN VARCHAR2
+IS
+    v_out VARCHAR2(100);
+BEGIN
+    IF LENGTH(v_string) = 0 THEN
+        RETURN NULL;
+    END IF;
+    
+    v_out := INITCAP(SUBSTR(v_string, 1, 1)) || 
+    LOWER(SUBSTR(v_string, 2, LENGTH(v_string) - 2)) || INITCAP(SUBSTR(v_string, -1, 1));
+    
+    RETURN v_out;
+END;
+/
+SELECT lower_to_upper('test') AS v_lower_to_upper FROM DUAL;
+SELECT lower_to_upper('tesT') AS v_lower_to_upper FROM DUAL;
+
+--ZAD5--
+
+CREATE OR REPLACE FUNCTION pesel_to_date(v_pesel VARCHAR2) RETURN VARCHAR2
+IS
+    v_out VARCHAR2(10);
+    v_year VARCHAR2(4);
+    v_month VARCHAR2(2);
+    v_day VARCHAR2(2);
+BEGIN
+    IF LENGTH(v_pesel) < 11 THEN
+        RAISE_APPLICATION_ERROR(-20003, 'PESEL too short!');
+    END IF;
+    IF LENGTH(v_pesel) > 11 THEN
+        RAISE_APPLICATION_ERROR(-20003, 'PESEL too long!');
+    END IF;
+    
+
+    v_month := SUBSTR(v_pesel, 3, 2);
+    IF v_month > 20 THEN
+        v_year := '20' || SUBSTR(v_pesel, 1, 2);
+        v_month := TO_CHAR(TO_NUMBER(v_month)-20);
+    ELSE
+        v_year := '19' || SUBSTR(v_pesel, 1, 2);
+    END IF;
+    v_day := SUBSTR(v_pesel, 5, 2);
+    
+
+    v_out := v_year || '-' || v_month || '-' || v_day;
+    
+    RETURN v_out;
+END;
+/
+SELECT pesel_to_date('999999999999') AS v_pesel_to_date FROM DUAL;
+SELECT pesel_to_date('99101099999') AS v_pesel_to_date FROM DUAL;
+
+--ZAD6--
+
+CREATE OR REPLACE FUNCTION count_employees_and_deps(v_country VARCHAR2)
+RETURN 
+    VARCHAR2
+IS
+    n_employees INT;
+    n_departments INT;
+    summary VARCHAR2(100);
+BEGIN
+    SELECT COUNT(*) INTO n_employees
+    FROM employees e
+    JOIN departments d ON e.department_id = d.department_id
+    WHERE d.location_id IN (SELECT l.location_id FROM locations l 
+    JOIN countries c ON l.country_id = c.country_id 
+    WHERE c.country_name = v_country);
+
+    SELECT COUNT(*) INTO n_departments
+    FROM departments d
+    JOIN locations l ON d.location_id = l.location_id
+    JOIN countries c ON l.country_id = c.country_id
+    WHERE c.country_name = v_country;
+
+    IF n_departments = 0 THEN
+        RAISE_APPLICATION_ERROR(-20006, 'Could not find country.');
+    END IF;
+    
+    summary := 'Employees: ' || TO_CHAR(n_employees) || 
+    ' | Departments: ' || TO_CHAR(n_departments);
+    
+    RETURN summary;
+
+END;
+/
+SELECT count_employees_and_deps('United States of America') FROM DUAL;
+SELECT count_employees_and_deps('test') FROM DUAL;
+
+--WYZWALACZE--
+--ZAD1--
+
+CREATE TABLE archiwum_departamentow (
+    department_id INT,
+    nazwa VARCHAR2(50),
+    data_zamkniecia DATE,
+    manager_id INT
+);
+
+CREATE OR REPLACE TRIGGER usuniecie_danych_departament_trigger
+AFTER DELETE ON departments
+FOR EACH ROW
+BEGIN
+    INSERT INTO archiwum_departamentow (department_id, nazwa, data_zamkniecia, manager_id)
+    VALUES (:OLD.department_id, :OLD.department_name, SYSTIMESTAMP, :OLD.manager_id);
+END;
+/
+
+--ZAD2--
+
+
+CREATE TABLE zlodziej (
+    zlodziej_id NUMBER,
+    user_name VARCHAR(50),
+    czas_zmiany TIMESTAMP
+);
+
+
+CREATE OR REPLACE TRIGGER dodanie_danych_employees_trigger
+AFTER INSERT OR UPDATE ON employees
+FOR EACH ROW
+DECLARE
+    v_min NUMBER := 2000;
+    v_max NUMBER := 26000;
+BEGIN
+    IF :NEW.salary < v_min OR :NEW.salary > v_max THEN
+        DBMS_OUTPUT.PUT_LINE('Zarobki przekraczaja dozwolone wartosci!');
+    END IF;
+    INSERT INTO zlodziej
+    VALUES (0, USER, SYSTIMESTAMP);
+END;
+/
+
+
+INSERT INTO employees (employee_id, first_name, last_name, email, 
+phone_number, hire_date, job_id, salary)
+VALUES (250, 'Jan', 'Kowalski', 'test@test.com', '+48999999999',
+'11/11/11', 'AD_PRES', 27000);
+SELECT * FROM zlodziej;
+
+
+--ZAD3--
+
+
+--ZAD4--
+
+CREATE OR REPLACE TRIGGER jod_grades_trigger
+BEFORE INSERT OR UPDATE OR DELETE ON job_grades
+BEGIN
+  RAISE_APPLICATION_ERROR(-20024, 'Zablokowano modyfikowanie tabeli job_grades.');
+END;
+
+DELETE FROM job_grades WHERE grade LIKE 'A'
+
+
+--ZAD5--
+
+CREATE OR REPLACE TRIGGER jobs_update_trigger
+BEFORE UPDATE ON jobs
+FOR EACH ROW
+BEGIN
+    :NEW.max_salary := :OLD.max_salary;
+    :NEW.min_salary := :OLD.min_salary;
+END;
+/
+Update JOBS SET min_salary=0, max_salary= 100000 WHERE job_id = 'AD_PRES';
+SELECT * FROM JOBS WHERE job_id = 'AD_PRES';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
